@@ -5,6 +5,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 
 public class ProjectWindow extends JFrame {
     
@@ -23,6 +25,13 @@ public class ProjectWindow extends JFrame {
     }
     
     private void initComponents(){
+        
+        try{
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        }
+        catch( Exception ex){
+            ex.printStackTrace();
+        }
         
         frameContainer = this.getContentPane();
         textTopField = new JTextField();
