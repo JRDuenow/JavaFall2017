@@ -31,7 +31,7 @@ public class ProjectWindow extends JFrame {
         //initialize the buttons
         btnFirst = new JButton("First");
         btnLast = new JButton("Last");
-        btnComputer = new JButton("Computer");
+        btnComputer = new JButton("My Computer");
         
         //Using Lambda for ease of use
         btnFirst.addActionListener((actionEvent) -> {
