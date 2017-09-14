@@ -37,6 +37,7 @@ public class GameWindow extends JFrame {
         currentPlayer = State.O;
         frameContainer = this.getContentPane();
         textTopField = new JTextField(String.format("Play Tic-Tac-Toe: %s’s turn!", currentPlayer));
+        textTopField.setEditable(false);
         buttonArray = new GamePiece[9];
 
         try {
