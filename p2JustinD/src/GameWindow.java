@@ -13,13 +13,15 @@ public class GameWindow extends JFrame {
     };
 
     enum GameState {
-        Playing, Draw, X_Won, O_Won
+        Playing, Draw, Won
     }
 
     State currentPlayer;
     JTextField textTopField;
     Container frameContainer;
     GamePiece[] buttonArray;
+
+    int turnCounter = 0;
 
     public GameWindow() {
         super("p2 Justin Duenow");
@@ -75,15 +77,17 @@ public class GameWindow extends JFrame {
                         case Draw:
                             textTopField.setText("Draw!");
                             break;
-                        case X_Won:
-                            textTopField.setText("X Won!");
-                            break;
-                        case O_Won:
-                            textTopField.setText("O Won!");
+                        case Won:
+                            textTopField.setText(String.format("%s Won!", currentPlayer.name()));
+
+                            for (GamePiece gamePiece : buttonArray) {
+                                gamePiece.setEnabled(false);
+                            }
                             break;
                         case Playing:
                             currentPlayer = currentPlayer == State.O ? State.X : State.O;
                             textTopField.setText(String.format("%s’s turn", currentPlayer));
+                            turnCounter++;
                             break;
                     }
 
@@ -96,16 +100,33 @@ public class GameWindow extends JFrame {
     }
 
     private GameState checkBoardState() {
-        
-        return GameState.Playing;
+        if (checkCells(buttonArray[0], buttonArray[1], buttonArray[2])
+                ||// 3 rows
+                checkCells(buttonArray[3], buttonArray[4], buttonArray[5])
+                || checkCells(buttonArray[6], buttonArray[7], buttonArray[8])
+                || checkCells(buttonArray[0], buttonArray[3], buttonArray[6])
+                ||// 3 columns
+                checkCells(buttonArray[1], buttonArray[4], buttonArray[7])
+                || checkCells(buttonArray[2], buttonArray[5], buttonArray[8])
+                || checkCells(buttonArray[0], buttonArray[4], buttonArray[8])
+                ||// diags
+                checkCells(buttonArray[2], buttonArray[4], buttonArray[6])) {
+
+            return GameState.Won;
+        } else if (turnCounter == 8) {
+            return GameState.Draw;
+        } else {
+            return GameState.Playing;
+        }
     }
-    
-    private boolean checkCells(GamePiece p1, GamePiece p2, GamePiece p3){
-        
-        if (p1.getPieceState() == null || p2.getPieceState() == null || p3.getPieceState() == null)
+
+    //check 3 pieces to see if their pieceState are the same
+    private boolean checkCells(GamePiece p1, GamePiece p2, GamePiece p3) {
+
+        if (p1.getPieceState() == null || p2.getPieceState() == null || p3.getPieceState() == null) {
             return false;
-        
-        
+        }
+
         return p1.getPieceState().equals(p2.getPieceState()) && p2.getPieceState().equals(p3.getPieceState());
     }
 
