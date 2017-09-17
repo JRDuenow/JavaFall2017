@@ -1,4 +1,5 @@
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -101,27 +102,39 @@ public class GameWindow extends JFrame {
     }
 
     private GameState checkBoardState() {
-        if (checkCells(buttonArray[0], buttonArray[1], buttonArray[2])
-                ||// 3 rows
-                checkCells(buttonArray[3], buttonArray[4], buttonArray[5])
-                || checkCells(buttonArray[6], buttonArray[7], buttonArray[8])
-                || checkCells(buttonArray[0], buttonArray[3], buttonArray[6])
-                ||// 3 columns
-                checkCells(buttonArray[1], buttonArray[4], buttonArray[7])
-                || checkCells(buttonArray[2], buttonArray[5], buttonArray[8])
-                || checkCells(buttonArray[0], buttonArray[4], buttonArray[8])
-                ||// diags
-                checkCells(buttonArray[2], buttonArray[4], buttonArray[6])) {
+        int[][] winChecks
+                = {
+                    //rows
+                    {0, 1, 2},
+                    {3, 4, 5},
+                    {6, 7, 8},
+                    //columns
+                    {0, 3, 6},
+                    {1, 4, 7},
+                    {2, 5, 8},
+                    //diags
+                    {0, 4, 8},
+                    {2, 4, 6}
+                };
 
-            return GameState.Won;
-        } else if (turnCounter == 8) {
+        for (int[] arr : winChecks) {
+            if (checkCells(buttonArray[arr[0]], buttonArray[arr[1]], buttonArray[arr[2]])) {
+                buttonArray[arr[0]].setBackground(Color.GREEN);
+                buttonArray[arr[1]].setBackground(Color.GREEN);
+                buttonArray[arr[2]].setBackground(Color.GREEN);
+
+                return GameState.Won;
+            }
+        }
+
+        if (turnCounter == 8) {
             return GameState.Draw;
         } else {
             return GameState.Playing;
         }
     }
 
-    //check 3 pieces to see if their pieceState are the same
+//check 3 pieces to see if their pieceState are the same
     private boolean checkCells(GamePiece p1, GamePiece p2, GamePiece p3) {
 
         if (p1.getPieceState() == null || p2.getPieceState() == null || p3.getPieceState() == null) {
@@ -129,6 +142,7 @@ public class GameWindow extends JFrame {
         }
 
         return p1.getPieceState().equals(p2.getPieceState()) && p2.getPieceState().equals(p3.getPieceState());
+
     }
 
     private class GamePiece extends JButton {
