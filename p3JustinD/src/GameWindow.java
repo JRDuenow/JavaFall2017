@@ -5,20 +5,22 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.Random;
 import javax.swing.*;
 
 public class GameWindow extends JFrame {
 
-    int key1;
-    int key2;
-    int key3;
-
+    int[] key;
+    int[] guesses;
+    
     JTextField txtTopField;
     JPanel drawingPanel;
     Container frameContainer;
-    
+
     JButton[] btnArray;
+    int numOfGuess = 0;
+    
 
     public GameWindow() {
         super("p3 Justin Duenow");
@@ -59,6 +61,7 @@ public class GameWindow extends JFrame {
                 tmpButton.setText("New Game");
             } else if (i == 11) {
                 tmpButton.setText("Clear");
+                tmpButton.setEnabled(false);
             }
 
             tmpButton.addActionListener(btnListener);
@@ -68,19 +71,28 @@ public class GameWindow extends JFrame {
 
         frameContainer.add(buttonPanel, "South");
 
-        frameContainer.add(new DrawPanel(), "Center");
+        DrawPanel panel = new DrawPanel();
+
+        frameContainer.add(panel, "Center");
     }
 
     private void SetKey() {
-        key1 = (int) (Math.random() * 10);
+        
+        key = new int[3];
+        
+        key[0] = (int) (Math.random() * 10);
 
         do {
-            key2 = (int) (Math.random() * 10);
-        } while (key2 == key1);
+            key[1] = (int) (Math.random() * 10);
+        } while (key[1] == key[0]);
 
         do {
-            key3 = (int) (Math.random() * 10);
-        } while (key3 == key1 && key3 == key2);
+            key[2] = (int) (Math.random() * 10);
+        } while (key[2] == key[1] && key[2] == key[0]);
+    }
+    
+    private String formatArray(int[] arr){
+        return Arrays.toString(arr).replaceAll("\\[|\\]|,|\\s", "");
     }
 
     private class DrawPanel extends JPanel {
@@ -95,6 +107,7 @@ public class GameWindow extends JFrame {
 
     private class ButtonListener implements ActionListener {
 
+        
         @Override
         public void actionPerformed(ActionEvent ae) {
 
@@ -102,13 +115,43 @@ public class GameWindow extends JFrame {
             String txtButton = tmpButton.getText();
 
             if (txtButton.equals("New Game")) {
-                SetKey();
-                txtTopField.setText("Key = " + key1 + "" + key2 + "" + key3);
-            } else if (txtButton.equals("Clear")) {
+                numOfGuess = 0;
+                guesses = new int[3];
                 
+                SetKey();
+                txtTopField.setText("Key = " + formatArray(key));
+                
+                for (int i = 0; i < 10; i++) {
+                    btnArray[i].setEnabled(true);
+                }
+                
+                 btnArray[11].setEnabled(false);
+            } else if (txtButton.equals("Clear")) {
+                numOfGuess = 0;
             } else {
+                tmpButton.setEnabled(false);
+                
+                guesses[numOfGuess] = Integer.parseInt(txtButton);
+                
+                numOfGuess++;
+                
+                txtTopField.setText("Key = " + formatArray(key) + " | Guess = " + formatArray(guesses));
+                
+                
+                
                 
             }
+            
+            
+            
+            if (numOfGuess == 3){
+                for (int i = 0; i < 10; i++) {
+                    btnArray[i].setEnabled(false);
+                }
+                
+                btnArray[11].setEnabled(true);
+            }
+            
         }
 
     }
