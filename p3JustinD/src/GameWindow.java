@@ -1,26 +1,27 @@
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
 import java.util.Arrays;
-import java.util.Random;
 import javax.swing.*;
 
 public class GameWindow extends JFrame {
 
     int[] key;
     int[] guesses;
-    
+
     JTextField txtTopField;
-    JPanel drawingPanel;
+    DrawPanel drawingPanel;
     Container frameContainer;
 
     JButton[] btnArray;
     int numOfGuess = 0;
-    
 
     public GameWindow() {
         super("p3 Justin Duenow");
@@ -44,6 +45,7 @@ public class GameWindow extends JFrame {
         frameContainer = this.getContentPane();
         txtTopField = new JTextField("Play Ball!!!");
         txtTopField.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 24));
+        txtTopField.setEditable(false);
 
         frameContainer.add(txtTopField, "North");
 
@@ -71,15 +73,15 @@ public class GameWindow extends JFrame {
 
         frameContainer.add(buttonPanel, "South");
 
-        DrawPanel panel = new DrawPanel();
+        drawingPanel = new DrawPanel();
 
-        frameContainer.add(panel, "Center");
+        frameContainer.add(drawingPanel, "Center");
     }
 
     private void SetKey() {
-        
+
         key = new int[3];
-        
+
         key[0] = (int) (Math.random() * 10);
 
         do {
@@ -88,26 +90,65 @@ public class GameWindow extends JFrame {
 
         do {
             key[2] = (int) (Math.random() * 10);
-        } while (key[2] == key[1] && key[2] == key[0]);
-    }
-    
-    private String formatArray(int[] arr){
-        return Arrays.toString(arr).replaceAll("\\[|\\]|,|\\s", "");
+        } while (key[2] == key[1] || key[2] == key[0]);
     }
 
     private class DrawPanel extends JPanel {
+
+        int balls = 0;
+        int strikes = 0;
+        boolean gameEnd = false;
+
+        public void setGameState(int balls, int strikes, boolean gameEnd) {
+            this.balls = balls;
+            this.strikes = strikes;
+            this.gameEnd = gameEnd;
+
+            this.repaint();
+        }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
+            if (gameEnd) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                g2.setFont(new Font("Courier New", 0, 14));
+                g2.setColor(Color.BLUE);
+                g2.drawString("Ball(s)", 30, 60);
+
+                for (int i = 0; i < 3; i++) {
+                    Ellipse2D.Double circle = new Ellipse2D.Double(120 + i * 60, 40, 40, 40);
+                    if (balls >= i + 1) {
+                        g2.fill(circle);
+                    } else {
+                        g2.draw(circle);
+                    }
+
+                }
+
+                g2.setFont(new Font("Courier New", 0, 14));
+                g2.setColor(Color.RED);
+                g2.drawString("Strikes(s)", 30, 120);
+
+                for (int i = 0; i < 3; i++) {
+                    Ellipse2D.Double circle = new Ellipse2D.Double(120 + i * 60, 100, 40, 40);
+                    if (strikes >= i + 1) {
+                        g2.fill(circle);
+                    } else {
+                        g2.draw(circle);
+                    }
+
+                }
+
+            }
         }
 
     }
 
     private class ButtonListener implements ActionListener {
 
-        
         @Override
         public void actionPerformed(ActionEvent ae) {
 
@@ -117,41 +158,96 @@ public class GameWindow extends JFrame {
             if (txtButton.equals("New Game")) {
                 numOfGuess = 0;
                 guesses = new int[3];
-                
+
+                drawingPanel.setGameState(0, 0, false);
+
                 SetKey();
-                txtTopField.setText("Key = " + formatArray(key));
-                
+                txtTopField.setText("Key = " + formatArray(key, false));
+
                 for (int i = 0; i < 10; i++) {
                     btnArray[i].setEnabled(true);
                 }
-                
-                 btnArray[11].setEnabled(false);
+
+                btnArray[11].setEnabled(false);
             } else if (txtButton.equals("Clear")) {
                 numOfGuess = 0;
+                drawingPanel.setGameState(0, 0, false);
+                for (int i = 0; i < 10; i++) {
+                    btnArray[i].setEnabled(true);
+                }
+                guesses = new int[3];
+                txtTopField.setText("Key = " + formatArray(key, false));
+
             } else {
                 tmpButton.setEnabled(false);
-                
+
                 guesses[numOfGuess] = Integer.parseInt(txtButton);
-                
+
                 numOfGuess++;
-                
-                txtTopField.setText("Key = " + formatArray(key) + " | Guess = " + formatArray(guesses));
-                
-                
-                
-                
+
+                txtTopField.setText("Key = " + formatArray(key, false) + " | Guess = " + formatArray(guesses, true));
             }
-            
-            
-            
-            if (numOfGuess == 3){
+
+            if (numOfGuess == 3) {
                 for (int i = 0; i < 10; i++) {
                     btnArray[i].setEnabled(false);
                 }
-                
+
                 btnArray[11].setEnabled(true);
+
+                int balls = calcBalls();
+                int strikes = calcStrikes();
+
+                txtTopField.setText(txtTopField.getText() + " | B=" + balls + " S=" + strikes);
+
+                drawingPanel.setGameState(balls, strikes, true);
             }
-            
+
+        }
+
+        private String formatArray(int[] arr, boolean useGuessCount) {
+
+            if (useGuessCount) {
+                String returnVal = "";
+                for (int i = 0; i < numOfGuess; i++) {
+                    returnVal += guesses[i] + "";
+                }
+
+                return returnVal;
+            }
+
+            return Arrays.toString(arr).replaceAll("\\[|\\]|,|\\s", "");
+        }
+
+        int calcBalls() {
+            int balls = 0;
+
+            for (int i = 0; i < 3; i++) {
+                int currentNum = guesses[i];
+
+                for (int j = 0; j < 3; j++) {
+                    if (key[j] == currentNum && j == i) {
+                        continue; // this is a strike
+                    }
+                    if (key[j] == currentNum) {
+                        balls += 1;
+                    }
+
+                }
+
+            }
+
+            return balls;
+        }
+
+        int calcStrikes() {
+            int strikes = 0;
+            for (int i = 0; i < 3; i++) {
+                if (key[i] == guesses[i]) {
+                    strikes += 1;
+                }
+            }
+            return strikes;
         }
 
     }
