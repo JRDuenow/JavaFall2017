@@ -149,6 +149,12 @@ public class GameWindow extends JFrame {
 
     private class ButtonListener implements ActionListener {
 
+        private void setNumberButtons(boolean buttonState){
+            for (int i = 0; i < 10; i++) {
+                    btnArray[i].setEnabled(buttonState);
+                }
+        }
+        
         @Override
         public void actionPerformed(ActionEvent ae) {
 
@@ -164,17 +170,15 @@ public class GameWindow extends JFrame {
                 SetKey();
                 txtTopField.setText("Key = " + formatArray(key, false));
 
-                for (int i = 0; i < 10; i++) {
-                    btnArray[i].setEnabled(true);
-                }
+                setNumberButtons(true);
 
                 btnArray[11].setEnabled(false);
             } else if (txtButton.equals("Clear")) {
                 numOfGuess = 0;
                 drawingPanel.setGameState(0, 0, false);
-                for (int i = 0; i < 10; i++) {
-                    btnArray[i].setEnabled(true);
-                }
+                
+                setNumberButtons(true);
+                
                 guesses = new int[3];
                 txtTopField.setText("Key = " + formatArray(key, false));
 
@@ -189,9 +193,7 @@ public class GameWindow extends JFrame {
             }
 
             if (numOfGuess == 3) {
-                for (int i = 0; i < 10; i++) {
-                    btnArray[i].setEnabled(false);
-                }
+                setNumberButtons(false);
 
                 btnArray[11].setEnabled(true);
 
