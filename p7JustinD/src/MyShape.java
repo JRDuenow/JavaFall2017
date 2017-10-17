@@ -17,6 +17,11 @@ public abstract class MyShape implements CarCollision {
     public Point2D.Float getLocation() {
         return location;
     }
+    
+    public void moveLocation(float x, float y){
+        location.x += x;
+        location.y += y;
+    }
 
     public Color getColor() {
         return color;

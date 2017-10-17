@@ -13,7 +13,14 @@ public class Circle extends MyShape {
 
     @Override
     public Rectangle2D.Float getCollisionBox() {
-        return new Rectangle2D.Float();
+        
+        Point2D.Float location = this.getLocation();
+        float size = (float)(this.getSize() * 0.9);
+        
+        int x = (int)(location.getX() - (size / 2));
+        int y = (int)(location.getY() - (size / 2));
+        
+        return new Rectangle2D.Float(x, y, size,size);
     }
 
     @Override

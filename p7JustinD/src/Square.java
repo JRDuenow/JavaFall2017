@@ -13,7 +13,14 @@ public class Square extends MyShape {
 
     @Override
     public Rectangle2D.Float getCollisionBox() {
-        return new Rectangle2D.Float();
+        
+        Point2D.Float location = this.getLocation();
+        int size = this.getSize();
+        
+        int x = (int)(location.getX() - (size / 2));
+        int y = (int)(location.getY() - (size / 2));
+        
+        return new Rectangle2D.Float(x, y, size,size);
     }
 
     @Override
@@ -27,6 +34,8 @@ public class Square extends MyShape {
         int y = (int)(location.getY() - (size / 2));
         
         g2.fillRect(x, y, size, size);
+        
+        
     }
     
     

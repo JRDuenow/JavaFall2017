@@ -1,4 +1,3 @@
-
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -32,13 +31,23 @@ public class DrawPanel extends JPanel {
         actions.put("down", new CarMoveAction(0, 10));
         actions.put("left", new CarMoveAction(-10, 0));
         actions.put("right", new CarMoveAction(10, 0));
+    }
+    
+    public void addShape(MyShape shape){
+        shapes.add(shape);
         
-        // creates and starts a timer that automatically repaints every 50ms
-        Timer updateTimer = new Timer(50, (e) ->{
-            car.update();
-            repaint();
-        });     
-        updateTimer.start();
+        repaint();
+    }
+    
+    public void clearShapes(){
+        shapes.clear();
+        
+        repaint();
+    }
+    
+    public void fixCar(){
+        car.fixCar();
+        repaint();
     }
 
     @Override
@@ -46,9 +55,19 @@ public class DrawPanel extends JPanel {
         super.paintComponent(g);
 
         Graphics2D g2 = (Graphics2D) g;
-
-        car.draw(g2);
-
+        
+        for (int i = shapes.size() - 1; i >= 0; i--) {
+            
+            if (car.checkCollision(shapes.get(i))){
+                shapes.remove(i);
+            }else{
+                shapes.get(i).draw(g2);
+            }
+            
+        }
+        
+       
+        car.draw(g2);       
     }
 
     private class CarMoveAction extends AbstractAction{
@@ -64,6 +83,7 @@ public class DrawPanel extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             car.move(xAmount, yAmount);
+            repaint();
         }
         
     }
